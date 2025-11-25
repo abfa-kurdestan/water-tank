@@ -87,6 +87,7 @@ body {
 
 .navigate-btn:hover {
     background-color: #0077b6;
+    color: white;
 }
 
 /* دکمه ارسال/اشتراک‌گذاری (سبز) - جدید */
@@ -128,12 +129,88 @@ body {
 }
 
 /* استایل آیکون مارکرها */
+/* ده هزار لیتری */
+
 .water-icon {
     text-align: center;
     line-height: 32px;
     color: white;
-    background: #0077b6;
+    background: #044eb6;
     border-radius: 50%;
     border: 2px solid white;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+
+}
+
+/* پنج هزار لیتری */
+
+.water-icon-5k {
+    text-align: center;
+    line-height: 32px;
+    color: white;
+    background: #4fa8ff;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+
+
+/* مارکر مدرسه (آبی با آیکون مدرسه) */
+.school-icon {
+    width: 32px;
+    height: 32px;
+    background: #e3970a;
+    border-radius: 50%;
+    color: white;
+    line-height: 32px;
+    text-align: center;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+
+/*legend*/
+#legend {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    background: white;
+    padding: 10px 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    z-index: 9999;
+    font-size: 14px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.legend-item:last-child {
+    margin-bottom: 0;
+}
+
+
+
+
+
+/*icon legend*/
+
+#legend .water-icon,
+#legend .water-icon-5k {
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+
+
+/*delecte liflet logo*/
+.leaflet-control-attribution {
+    display: none !important;
 }
