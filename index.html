@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <link rel="stylesheet" href="style.css?v=1.1">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
   <style>
     body {
       touch-action: none;
@@ -27,7 +29,17 @@
   </header>
 
   <div id="map"></div>
+  <div class="map-toggle-wrapper top-right">
+    <span class="toggle-label">تغییر نقشه</span>
+    <label class="switch">
+      <input type="checkbox" id="layerCheckbox">
+      <span class="slider round"></span>
+    </label>
+  </div>
 
+  <div id="locate-btn" class="custom-control-btn bottom-center" onclick="locateUser()">
+    <i class="fas fa-crosshairs"></i>
+  </div>
 
   <!-- legend  -->
   <div id="legend">
@@ -44,133 +56,250 @@
   </div>
 
   <!-- legend finish -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js" defer></script>
 
 
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // === داده‌های تانکرها ===
+
+      const waterPoints = [
+        { id: 1, name: "آتش نشانی آزادگان", lat: 36.002273, lng: 45.879323, type: "10k" },
+        { id: 2, name: "بنیاد مسکن", lat: 36.010753, lng: 45.862395, type: "10k" },
+        { id: 3, name: "پمپ بنزین سیار", lat: 36.005017, lng: 45.882438, type: "10k" },
+        { id: 4, name: "اداره بهزیستی (۱۰۰ متر پایین تر از درب ورودی)", lat: 36.000844, lng: 45.888383, type: "10k" },
+        { id: 5, name: "آتش نشانی ترخان آباد (جنب درب ورودی)", lat: 35.990426, lng: 45.902377, type: "10k" },
+        { id: 6, name: "مدرسه شبلی", lat: 35.985774, lng: 45.895147, type: "10k" },
+        { id: 7, name: "فرمانداری (اول کوچه زندان)", lat: 35.985685, lng: 45.887780, type: "" },
+        { id: 8, name: "اداره کار (۳۰ متر پایین تر از درب ورودی به طرف تالار چوپی)", lat: 35.992911, lng: 45.874881, type: "10k" },
+        { id: 9, name: "مدرسه بنی رزان", lat: 36.000826, lng: 45.852401, type: "10k" },
+        { id: 10, name: "فنی حرفه ای (جنب درب ورودی ساختمان)", lat: 35.996163, lng: 45.868960, type: "10k" },
+        { id: 11, name: "اداره مخابرات (دیوار پشتی اداره)", lat: 35.993735, lng: 45.887804, type: "" },
+        { id: 12, name: "اداره آموزش و پرورش (کوچه جنب آموزش پرورش روبروی اداره برق)", lat: 35.989847, lng: 45.892974, type: "10k" },
+        { id: 13, name: "مدرسه امام خمینی (جاده سلیمانیه)", lat: 35.999492, lng: 45.868697, type: "10k" },
+        { id: 14, name: "مدرسه کاوه محمدی (چهار راه ثبت احوال)", lat: 35.987182, lng: 45.882816, type: "10k" },
+        { id: 15, name: "مدرسه دمامه (ضلع شرقی مدرسه)", lat: 35.979571, lng: 45.914333, type: "10k" },
+        { id: 16, name: "مدرسه کوی فرهنگیان (ورودی زمین چمن)", lat: 36.001385, lng: 45.895745, type: "10k" },
+        { id: 17, name: "مدرسه شهرک نور", lat: 35.984435, lng: 45.904250, type: "10k" },
+        { id: 18, name: "مدرسه احمد آباد جنب مسکن مهرها", lat: 35.998648, lng: 45.903658, type: "10k" },
+        { id: 19, name: "تیرچه سعیدپور ترخان آباد", lat: 35.989129, lng: 45.905801, type: "10k" },
+        { id: 20, name: "مدرسه بین ترخان آباد و مولوی", lat: 35.989496, lng: 45.907326, type: "10k" },
+        { id: 21, name: "باشگاه صفری", lat: 35.989009, lng: 45.898944, type: "10k" },
+        { id: 22, name: "عثمان آباد", lat: 35.979777, lng: 45.905051, type: "10k" },
+        { id: 23, name: "اتفاقات اداره آب (۵۰ متر بالاتر از درب ورودی روبروی کمیته امداد)", lat: 35.983330, lng: 45.895308, type: "10k" },
+        { id: 24, name: "مدرسه دکتر حسابی", lat: 35.992291, lng: 45.896519, type: "10k" },
+        { id: 25, name: "حیاط شخصی واقع در نبش کمربندی ۲ و خیابان اماکن", lat: 35.983050, lng: 45.885654, type: "10k" },
+        { id: 26, name: "درمانگاه تخصصی بیمارستان صلاح الدین", lat: 35.987384, lng: 45.885947, type: "10k" },
+        { id: 27, name: "مخابرات سابق", lat: 35.991866, lng: 45.889481, type: "10k" },
+        { id: 28, name: "پارک مسکن مهر میدان گاز", lat: 36.005793, lng: 45.895839, type: "10k" },
+        { id: 29, name: "سپاه صالح آباد", lat: 36.004583, lng: 45.876497, type: "10k" },
+        { id: 30, name: "خانه سازمانی هنگ مرزی واقع در میدان شورا", lat: 36.006119, lng: 45.871066, type: "10k" },
+        { id: 31, name: "مدرسه شهرک رفاه بلوار کردستان", lat: 36.004586, lng: 45.861207, type: "10k" },
+        { id: 33, name: "ارتش", lat: 35.989487, lng: 45.878260, type: "10k" },
+        { id: 34, name: "مسجد واقع در شهرک لاله", lat: 35.998442, lng: 45.859277, type: "10k" },
+        { id: 35, name: "باشگاه گلشهر", lat: 35.997735, lng: 45.872272, type: "10k" },
+        { id: 36, name: "مدرسه فنی حرفه ای سلیمان خاطر", lat: 35.997695, lng: 45.876565, type: "10k" },
+        { id: 37, name: "مسجد واقع در شهرک دادگستری", lat: 36.006194, lng: 45.868182, type: "10k" },
+        { id: 38, name: "مدرسه ملاصالح احمدی محله پیرمراد", lat: 35.980659, lng: 45.900380, type: "10k" },
+        { id: 39, name: "ارشاد اسلامی وروری روبروی فلکه هنر", lat: 35.994424, lng: 45.889775, type: "10k" },
+        { id: 40, name: "بلوار بلال حبشی", lat: 36.005218, lng: 45.890740, type: "10k" }
+      ];
+
+      // === 1. تعریف آیکون‌ها ===
+      const icon10k = L.divIcon({ className: 'icon-10k', html: "<div class='water-icon'><i class='fas fa-glass-water'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
+      const icon5k = L.divIcon({ className: 'icon-5k', html: "<div class='water-icon-5k'><i class='fas fa-glass-water'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
+      const iconSchool = L.divIcon({ className: 'icon-school', html: "<div class='school-icon'><i class='fas fa-school'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
+
+      // === 2. لایه‌های نقشه (CartoDB پیش‌فرض و OSM) ===
+      const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© CartoDB',
+        maxZoom: 19
+      });
+
+      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 19
+      });
+
+      // شروع نقشه با Carto
+      const map = L.map('map', {
+        zoomControl: false,
+        layers: [cartoLayer]
+      }).setView([35.997, 45.887], 14);
+
+      L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+      // === 3. لاجیک سوییچ نقشه ===
+      const checkbox = document.getElementById('layerCheckbox');
+      checkbox.addEventListener('change', function () {
+        if (this.checked) {
+          map.removeLayer(cartoLayer);
+          map.addLayer(osmLayer);
+        } else {
+          map.removeLayer(osmLayer);
+          map.addLayer(cartoLayer);
+        }
+      });
+
+      // === 4. سیستم مارکر و کلاستر ===
+
+      let markersLayer; // متغیری که یا Group معمولی است یا Cluster Group
+
+      // ** شرط مهم: فقط اگر تعداد تانکرها بیشتر از 45 باشد، کلاستر فعال شود **
+      if (waterPoints.length > 30) {
+
+        // تنظیمات کلاستر برای اینکه آیکونش شبیه تانکر 10k باشد
+        markersLayer = L.markerClusterGroup({
+          showCoverageOnHover: false,
+          spiderfyOnMaxZoom: true,
+          disableClusteringAtZoom: 18, // در زوم خیلی نزدیک خوشه‌ها باز شوند
+
+          // تابع ساخت آیکون کلاستر سفارشی
+          iconCreateFunction: function (cluster) {
+            const count = cluster.getChildCount();
+            // اینجا از همان کلاس water-icon استفاده میکنیم تا شبیه 10k باشد
+            // به علاوه یک عدد کوچک (cluster-badge) که تعداد را نشان دهد
+            return L.divIcon({
+              html: `
+                <div class='cluster-wrapper'>
+                   <div class='water-icon'><i class='fas fa-glass-water'></i></div>
+                   <span class='cluster-badge'>${count}</span>
+                </div>
+              `,
+              className: 'marker-cluster-custom', // کلاس خالی برای جلوگیری از استایل پیش‌فرض
+              iconSize: [32, 32],
+              iconAnchor: [16, 16]
+            });
+          }
+        });
+
+      } else {
+        // اگر کمتر از 45 بود، از لایه گروپ معمولی استفاده کن (بدون کلاستر)
+        markersLayer = L.layerGroup();
+      }
+
+      // حلقه ایجاد مارکرها
+      waterPoints.forEach(point => {
+        let iconToUse = icon10k;
+        if (point.type === "5k") iconToUse = icon5k;
+        if (point.type === "school") iconToUse = iconSchool;
+
+        const marker = L.marker([point.lat, point.lng], { icon: iconToUse });
+
+        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${point.lat},${point.lng}`;
+
+        const popupContent = `
+            <div class="popup-content">
+              <h3>${point.name}</h3>
+              <p>کد نقطه: ${point.id}</p>
+              <a href="${googleMapsUrl}" target="_blank" class="navigate-btn">
+                <i class="fas fa-location-arrow"></i> مسیریابی
+              </a>
+              <button class="share-btn" onclick="window.shareLocation(${point.lat}, ${point.lng}, '${point.name}')">
+                <i class="fas fa-share-nodes"></i> اشتراک‌گذاری
+              </button>
+            </div>
+        `;
+        marker.bindPopup(popupContent, { className: 'custom-popup' });
+
+        // افزودن مارکر به لایه (چه کلاستر باشد چه معمولی)
+        markersLayer.addLayer(marker);
+      });
+
+      // اضافه کردن لایه نهایی به نقشه
+      map.addLayer(markersLayer);
 
 
-    // === تابع  برای اشتراک‌گذاری موقعیت ===
-    function shareLocation(lat, lng, name) {
-      const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
-      const shareData = {
-        title: 'اشتراک گذاری موقعیت تانکر آب',
-        text: `📍 موقعیت تانکر آب:\n${name}\n\n`,
-        url: mapLink
+      // === 5. تابع اشتراک گذاری (گلوبال) ===
+      window.shareLocation = function (lat, lng, name) {
+        const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
+        const shareData = {
+          title: 'اشتراک گذاری موقعیت تانکر آب',
+          text: `📍 ${name}\n`,
+          url: mapLink
+        };
+        if (navigator.share) {
+          navigator.share(shareData).catch(console.error);
+        } else {
+          navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`).then(() => alert('لینک کپی شد!'));
+        }
       };
 
-      // اگر مرورگر قابلیت Share داشت (موبایل)
-      if (navigator.share) {
-        navigator.share(shareData).catch((err) => console.log('Error sharing:', err));
-      } else {
-        // اگر کامپیوتر بود، لینک را کپی کن
-        navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`).then(() => {
-          alert('لینک و متن موقعیت کپی شد! می‌توانید در پیام‌رسان‌ها Paste کنید.');
-        });
-      }
-    }
+      // === 6. موقعیت‌یابی کاربر (Locate Me) ===
+      let userMarker = null;
 
-    // 2. راه‌اندازی نقشه
-    const map = L.map('map', {
-      zoomControl: false
-    }).setView([35.997, 45.887], 14);
+      // === 6. موقعیت‌یابی کاربر (نسخه پیشرفته و دقیق) ===
+      window.locateUser = function () {
+        if (!navigator.geolocation) {
+          alert("مرورگر شما قدیمی است و پشتیبانی نمی‌کند.");
+          return;
+        }
 
-    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+        const btnIcon = document.querySelector('#locate-btn i');
+        // حالت لودینگ (آیکون چرخان)
+        btnIcon.classList.remove('fa-crosshairs');
+        btnIcon.classList.add('fa-spinner', 'fa-spin');
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
-      maxZoom: 19
-    }).addTo(map);
+        // تنظیمات دقیق موقعیت‌یابی (طبق فایل اول)
+        const options = {
+          enableHighAccuracy: true, // اولویت با GPS دقیق
+          timeout: 15000,           // 15 ثانیه صبر کن
+          maximumAge: 10000         // اگر لوکیشن 10 ثانیه پیش را داری، همان را بده (سریع‌تر)
+        };
 
+        function success(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
 
+          // زوم روی کاربر
+          map.setView([lat, lng], 16);
 
-    // 1. تعریف آیکون‌ها (بدون تغییر)
-    const icon10k = L.divIcon({ className: 'icon-10k', html: "<div class='water-icon'><i class='fas fa-glass-water'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
-    const icon5k = L.divIcon({ className: 'icon-5k', html: "<div class='water-icon-5k'><i class='fas fa-glass-water'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
-    const iconSchool = L.divIcon({ className: 'icon-school', html: "<div class='school-icon'><i class='fas fa-school'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
+          // حذف مارکر قبلی اگر وجود داشت
+          if (userMarker) map.removeLayer(userMarker);
 
-    const waterPoints = [
-      { id: 1, name: "آتش نشانی آزادگان", lat: 36.002273, lng: 45.879323, type: "10k" },
-      { id: 2, name: "بنیاد مسکن", lat: 36.010753, lng: 45.862395, type: "10k" },
-      { id: 3, name: "پمپ بنزین سیار", lat: 36.005017, lng: 45.882438, type: "10k" },
-      { id: 4, name: "اداره بهزیستی (۱۰۰ متر پایین تر از درب ورودی)", lat: 36.000844, lng: 45.888383, type: "10k" },
-      { id: 5, name: "آتش نشانی ترخان آباد (جنب درب ورودی)", lat: 35.990426, lng: 45.902377, type: "10k" },
-      { id: 6, name: "مدرسه شبلی", lat: 35.985774, lng: 45.895147, type: "10k" },
-      { id: 7, name: "فرمانداری (اول کوچه زندان)", lat: 35.985685, lng: 45.887780, type: "" },
-      { id: 8, name: "اداره کار (۳۰ متر پایین تر از درب ورودی به طرف تالار چوپی)", lat: 35.992911, lng: 45.874881, type: "10k" },
-      { id: 9, name: "مدرسه بنی رزان", lat: 36.000826, lng: 45.852401, type: "10k" },
-      { id: 10, name: "فنی حرفه ای (جنب درب ورودی ساختمان)", lat: 35.996163, lng: 45.868960, type: "10k" },
-      { id: 11, name: "اداره مخابرات (دیوار پشتی اداره)", lat: 35.993735, lng: 45.887804, type: "" },
-      { id: 12, name: "اداره آموزش و پرورش (کوچه جنب آموزش پرورش روبروی اداره برق)", lat: 35.989847, lng: 45.892974, type: "10k" },
-      { id: 13, name: "مدرسه امام خمینی (جاده سلیمانیه)", lat: 35.999492, lng: 45.868697, type: "10k" },
-      { id: 14, name: "مدرسه کاوه محمدی (چهار راه ثبت احوال)", lat: 35.987182, lng: 45.882816, type: "10k" },
-      { id: 15, name: "مدرسه دمامه (ضلع شرقی مدرسه)", lat: 35.979571, lng: 45.914333, type: "10k" },
-      { id: 16, name: "مدرسه کوی فرهنگیان (ورودی زمین چمن)", lat: 36.001385, lng: 45.895745, type: "10k" },
-      { id: 17, name: "مدرسه شهرک نور", lat: 35.984435, lng: 45.904250, type: "10k" },
-      { id: 18, name: "مدرسه احمد آباد جنب مسکن مهرها", lat: 35.998648, lng: 45.903658, type: "10k" },
-      { id: 19, name: "تیرچه سعیدپور ترخان آباد", lat: 35.989129, lng: 45.905801, type: "10k" },
-      { id: 20, name: "مدرسه بین ترخان آباد و مولوی", lat: 35.989496, lng: 45.907326, type: "10k" },
-      { id: 21, name: "باشگاه صفری", lat: 35.989009, lng: 45.898944, type: "10k" },
-      { id: 22, name: "عثمان آباد", lat: 35.979777, lng: 45.905051, type: "10k" },
-      { id: 23, name: "اتفاقات اداره آب (۵۰ متر بالاتر از درب ورودی روبروی کمیته امداد)", lat: 35.983330, lng: 45.895308, type: "10k" },
-      { id: 24, name: "مدرسه دکتر حسابی", lat: 35.992291, lng: 45.896519, type: "10k" },
-      { id: 25, name: "حیاط شخصی واقع در نبش کمربندی ۲ و خیابان اماکن", lat: 35.983050, lng: 45.885654, type: "10k" },
-      { id: 26, name: "درمانگاه تخصصی بیمارستان صلاح الدین", lat: 35.987384, lng: 45.885947, type: "10k" },
-      { id: 27, name: "مخابرات سابق", lat: 35.991866, lng: 45.889481, type: "10k" },
-      { id: 28, name: "پارک مسکن مهر میدان گاز", lat: 36.005793, lng: 45.895839, type: "10k" },
-      { id: 29, name: "سپاه صالح آباد", lat: 36.004583, lng: 45.876497, type: "10k" },
-      { id: 30, name: "خانه سازمانی هنگ مرزی واقع در میدان شورا", lat: 36.006119, lng: 45.871066, type: "10k" },
-      { id: 31, name: "مدرسه شهرک رفاه بلوار کردستان", lat: 36.004586, lng: 45.861207, type: "10k" },
-      { id: 33, name: "ارتش", lat: 35.989487, lng: 45.878260, type: "10k" },
-      { id: 34, name: "مسجد واقع در شهرک لاله", lat: 35.998442, lng: 45.859277, type: "10k" },
-      { id: 35, name: "باشگاه گلشهر", lat: 35.997735, lng: 45.872272, type: "10k" },
-      { id: 36, name: "مدرسه فنی حرفه ای سلیمان خاطر", lat: 35.997695, lng: 45.876565, type: "10k" },
-      { id: 37, name: "مسجد واقع در شهرک دادگستری", lat: 36.006194, lng: 45.868182, type: "10k" },
-      { id: 38, name: "مدرسه ملاصالح احمدی محله پیرمراد", lat: 35.980659, lng: 45.900380, type: "10k" },
-      { id: 39, name: "ارشاد اسلامی وروری روبروی فلکه هنر", lat: 35.994424, lng: 45.889775, type: "10k" },
-      { id: 40, name: "بلوار بلال حبشی", lat: 36.005218, lng: 45.890740, type: "10k" }
-    ];
+          // ایجاد مارکر جدید (دایره‌ای شبیه فایل اول)
+          userMarker = L.circleMarker([lat, lng], {
+            radius: 10,
+            fillColor: "#ff5722", // رنگ نارنجی پررنگ (متمایز از سفید)
+            color: "#fff",        // حاشیه سفید برای دیده شدن بهتر
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.8
+          }).addTo(map);
 
-    // 3. ایجاد گروه لایه (مهمترین بخش برای سرعت)
-    const markersGroup = L.layerGroup();
+          userMarker.bindPopup("موقعیت شما").openPopup();
 
-    waterPoints.forEach(point => {
-      let iconToUse = icon10k;
-      if (point.type === "5k") iconToUse = icon5k;
-      if (point.type === "school") iconToUse = iconSchool;
+          // بازگشت آیکون دکمه به حالت عادی
+          btnIcon.classList.remove('fa-spinner', 'fa-spin');
+          btnIcon.classList.add('fa-crosshairs');
+        }
 
-      // ساخت مارکر با مختصات آماده
-      const marker = L.marker([point.lat, point.lng], { icon: iconToUse });
+        function error(err) {
+          // بازگشت آیکون دکمه به حالت عادی
+          btnIcon.classList.remove('fa-spinner', 'fa-spin');
+          btnIcon.classList.add('fa-crosshairs');
 
-      // لینک مسیریابی گوگل (اصلاح شده برای سرعت بهتر در موبایل)
-      const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${point.lat},${point.lng}`;
+          // مدیریت دقیق خطاها (طبق فایل اول)
+          if (err.code === 1) {
+            alert("شما اجازه دسترسی به موقعیت مکانی را رد کردید.");
+          } else if (err.code === 2) {
+            alert("موقعیت مکانی شما پیدا نشد (GPS خاموش است؟).");
+          } else if (err.code === 3) {
+            alert("زمان درخواست تمام شد. لطفاً دوباره تلاش کنید.");
+          } else {
+            alert("خطای ناشناخته در دریافت موقعیت.");
+          }
+          console.warn(`ERROR(${err.code}): ${err.message}`);
+        }
 
-      const popupContent = `
-        <div class="popup-content">
-          <h3>${point.name}</h3>
-          <p>کد نقطه: ${point.id}</p>
-          
-          <a href="${googleMapsUrl}" target="_blank" class="navigate-btn">
-            <i class="fas fa-location-arrow"></i> مسیریابی
-          </a>
-          
-          <button class="share-btn" onclick="shareLocation(${point.lat}, ${point.lng}, '${point.name}')">
-            <i class="fas fa-share-nodes"></i> ارسال موقعیت
-          </button>
-        </div>
-      `;
+        navigator.geolocation.getCurrentPosition(success, error, options);
+      };
 
-      marker.bindPopup(popupContent, { className: 'custom-popup' });
-
-      // نکته کلیدی: مارکر را به گروه اضافه می‌کنیم، نه مستقیم به نقشه
-      markersGroup.addLayer(marker);
     });
-
-    // 4. در نهایت کل گروه را یک‌جا به نقشه می‌چسبانیم
-    markersGroup.addTo(map);
-
   </script>
 </body>
 

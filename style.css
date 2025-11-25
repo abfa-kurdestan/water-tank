@@ -214,3 +214,161 @@ body {
 .leaflet-control-attribution {
     display: none !important;
 }
+
+
+
+/* ===== اضافه کردن به انتهای style.css ===== */
+
+/* --- استایل دکمه موقعیت و سوییچ --- */
+
+/* دکمه دایره‌ای (موقعیت یاب) */
+/* دکمه دایره‌ای (موقعیت یاب) با رنگ جدید */
+/* دکمه دایره‌ای (موقعیت یاب) - رنگ نارنجی جذاب */
+.custom-control-btn {
+    position: absolute;
+    background-color: #ff5722;
+    /* نارنجی (ست شده با مارکر لوکیشن) */
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    /* سایه کمی بیشتر برای برجستگی */
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    /* آیکون سفید */
+    transition: all 0.2s ease;
+    /* انیمیشن نرم */
+    border: 2px solid white;
+    /* حاشیه سفید برای تمیزی */
+}
+
+/* حالت کلیک شده */
+.custom-control-btn:active {
+    background-color: #e64a19;
+    /* نارنجی تیره‌تر هنگام کلیک */
+    transform: translateX(-50%) scale(0.95);
+    /* افکت کوچک شدن موقع کلیک */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* موقعیت پایین-وسط برای دکمه لوکیشن */
+.bottom-center {
+    bottom: 80px;
+    /* بالاتر از لجند */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* کانتینر سوییچ نقشه */
+.map-toggle-wrapper {
+    position: absolute;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* موقعیت بالا-راست برای سوییچ */
+.top-right {
+    top: 70px;
+    /* زیر هدر */
+    right: 10px;
+}
+
+.toggle-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* استایل ظاهری سوییچ (Switch) */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #2196F3;
+}
+
+input:checked+.slider:before {
+    transform: translateX(20px);
+}
+
+/* جابجایی دکمه‌های زوم (تا زیر سوییچ نیفتند) */
+.leaflet-bottom.leaflet-left {
+    bottom: 20px;
+    left: 10px;
+}
+
+/* --- استایل کلاسترها --- */
+
+/* حذف حاشیه پیش‌فرض کلاستر */
+.marker-cluster-custom {
+    background: none !important;
+    border: none !important;
+}
+
+/* نگهدارنده آیکون کلاستر */
+.cluster-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+}
+
+/* دایره قرمز کوچک برای نمایش تعداد */
+.cluster-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    line-height: 18px;
+    text-align: center;
+    border: 1px solid white;
+}
