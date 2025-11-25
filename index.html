@@ -4,19 +4,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Water Tank - تانکرهای آب</title>
+  <title>تانکرهای آب</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <link rel="stylesheet" href="style.css?v=1.1">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="style.css?v=1.1">
+
   <style>
     body {
       touch-action: none;
     }
   </style>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js" defer></script>
+  <script src="data.js" defer></script>
 </head>
 
 <body>
@@ -41,6 +45,10 @@
     <i class="fas fa-crosshairs"></i>
   </div>
 
+
+  <a href="https://t.me/Carwan" target="_blank" class="support-btn top-left">
+    <i class="fab fa-telegram-plane"></i>
+  </a>
   <!-- legend  -->
   <div id="legend">
     <div class="legend-item">
@@ -55,10 +63,6 @@
     </div>
   </div>
 
-  <!-- legend finish -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js" defer></script>
-
 
 
 
@@ -67,47 +71,10 @@
 
       // === داده‌های تانکرها ===
 
-      const waterPoints = [
-        { id: 1, name: "آتش نشانی آزادگان", lat: 36.002273, lng: 45.879323, type: "10k" },
-        { id: 2, name: "بنیاد مسکن", lat: 36.010753, lng: 45.862395, type: "10k" },
-        { id: 3, name: "پمپ بنزین سیار", lat: 36.005017, lng: 45.882438, type: "10k" },
-        { id: 4, name: "اداره بهزیستی (۱۰۰ متر پایین تر از درب ورودی)", lat: 36.000844, lng: 45.888383, type: "10k" },
-        { id: 5, name: "آتش نشانی ترخان آباد (جنب درب ورودی)", lat: 35.990426, lng: 45.902377, type: "10k" },
-        { id: 6, name: "مدرسه شبلی", lat: 35.985774, lng: 45.895147, type: "10k" },
-        { id: 7, name: "فرمانداری (اول کوچه زندان)", lat: 35.985685, lng: 45.887780, type: "" },
-        { id: 8, name: "اداره کار (۳۰ متر پایین تر از درب ورودی به طرف تالار چوپی)", lat: 35.992911, lng: 45.874881, type: "10k" },
-        { id: 9, name: "مدرسه بنی رزان", lat: 36.000826, lng: 45.852401, type: "10k" },
-        { id: 10, name: "فنی حرفه ای (جنب درب ورودی ساختمان)", lat: 35.996163, lng: 45.868960, type: "10k" },
-        { id: 11, name: "اداره مخابرات (دیوار پشتی اداره)", lat: 35.993735, lng: 45.887804, type: "" },
-        { id: 12, name: "اداره آموزش و پرورش (کوچه جنب آموزش پرورش روبروی اداره برق)", lat: 35.989847, lng: 45.892974, type: "10k" },
-        { id: 13, name: "مدرسه امام خمینی (جاده سلیمانیه)", lat: 35.999492, lng: 45.868697, type: "10k" },
-        { id: 14, name: "مدرسه کاوه محمدی (چهار راه ثبت احوال)", lat: 35.987182, lng: 45.882816, type: "10k" },
-        { id: 15, name: "مدرسه دمامه (ضلع شرقی مدرسه)", lat: 35.979571, lng: 45.914333, type: "10k" },
-        { id: 16, name: "مدرسه کوی فرهنگیان (ورودی زمین چمن)", lat: 36.001385, lng: 45.895745, type: "10k" },
-        { id: 17, name: "مدرسه شهرک نور", lat: 35.984435, lng: 45.904250, type: "10k" },
-        { id: 18, name: "مدرسه احمد آباد جنب مسکن مهرها", lat: 35.998648, lng: 45.903658, type: "10k" },
-        { id: 19, name: "تیرچه سعیدپور ترخان آباد", lat: 35.989129, lng: 45.905801, type: "10k" },
-        { id: 20, name: "مدرسه بین ترخان آباد و مولوی", lat: 35.989496, lng: 45.907326, type: "10k" },
-        { id: 21, name: "باشگاه صفری", lat: 35.989009, lng: 45.898944, type: "10k" },
-        { id: 22, name: "عثمان آباد", lat: 35.979777, lng: 45.905051, type: "10k" },
-        { id: 23, name: "اتفاقات اداره آب (۵۰ متر بالاتر از درب ورودی روبروی کمیته امداد)", lat: 35.983330, lng: 45.895308, type: "10k" },
-        { id: 24, name: "مدرسه دکتر حسابی", lat: 35.992291, lng: 45.896519, type: "10k" },
-        { id: 25, name: "حیاط شخصی واقع در نبش کمربندی ۲ و خیابان اماکن", lat: 35.983050, lng: 45.885654, type: "10k" },
-        { id: 26, name: "درمانگاه تخصصی بیمارستان صلاح الدین", lat: 35.987384, lng: 45.885947, type: "10k" },
-        { id: 27, name: "مخابرات سابق", lat: 35.991866, lng: 45.889481, type: "10k" },
-        { id: 28, name: "پارک مسکن مهر میدان گاز", lat: 36.005793, lng: 45.895839, type: "10k" },
-        { id: 29, name: "سپاه صالح آباد", lat: 36.004583, lng: 45.876497, type: "10k" },
-        { id: 30, name: "خانه سازمانی هنگ مرزی واقع در میدان شورا", lat: 36.006119, lng: 45.871066, type: "10k" },
-        { id: 31, name: "مدرسه شهرک رفاه بلوار کردستان", lat: 36.004586, lng: 45.861207, type: "10k" },
-        { id: 33, name: "ارتش", lat: 35.989487, lng: 45.878260, type: "10k" },
-        { id: 34, name: "مسجد واقع در شهرک لاله", lat: 35.998442, lng: 45.859277, type: "10k" },
-        { id: 35, name: "باشگاه گلشهر", lat: 35.997735, lng: 45.872272, type: "10k" },
-        { id: 36, name: "مدرسه فنی حرفه ای سلیمان خاطر", lat: 35.997695, lng: 45.876565, type: "10k" },
-        { id: 37, name: "مسجد واقع در شهرک دادگستری", lat: 36.006194, lng: 45.868182, type: "10k" },
-        { id: 38, name: "مدرسه ملاصالح احمدی محله پیرمراد", lat: 35.980659, lng: 45.900380, type: "10k" },
-        { id: 39, name: "ارشاد اسلامی وروری روبروی فلکه هنر", lat: 35.994424, lng: 45.889775, type: "10k" },
-        { id: 40, name: "بلوار بلال حبشی", lat: 36.005218, lng: 45.890740, type: "10k" }
-      ];
+      if (typeof waterPoints === 'undefined') {
+        console.error("فایل data.js لود نشده است!");
+        return;
+      }
 
       // === 1. تعریف آیکون‌ها ===
       const icon10k = L.divIcon({ className: 'icon-10k', html: "<div class='water-icon'><i class='fas fa-glass-water'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
@@ -232,7 +199,7 @@
       // === 6. موقعیت‌یابی کاربر (Locate Me) ===
       let userMarker = null;
 
-      // === 6. موقعیت‌یابی کاربر (نسخه پیشرفته و دقیق) ===
+      // === 6. موقعیت‌یابی کاربر (نسخه هوشمند و دو مرحله‌ای) ===
       window.locateUser = function () {
         if (!navigator.geolocation) {
           alert("مرورگر شما قدیمی است و پشتیبانی نمی‌کند.");
@@ -240,17 +207,11 @@
         }
 
         const btnIcon = document.querySelector('#locate-btn i');
-        // حالت لودینگ (آیکون چرخان)
+        // حالت لودینگ
         btnIcon.classList.remove('fa-crosshairs');
         btnIcon.classList.add('fa-spinner', 'fa-spin');
 
-        // تنظیمات دقیق موقعیت‌یابی (طبق فایل اول)
-        const options = {
-          enableHighAccuracy: true, // اولویت با GPS دقیق
-          timeout: 15000,           // 15 ثانیه صبر کن
-          maximumAge: 10000         // اگر لوکیشن 10 ثانیه پیش را داری، همان را بده (سریع‌تر)
-        };
-
+        // تابع موفقیت (مشترک)
         function success(position) {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
@@ -258,14 +219,12 @@
           // زوم روی کاربر
           map.setView([lat, lng], 16);
 
-          // حذف مارکر قبلی اگر وجود داشت
           if (userMarker) map.removeLayer(userMarker);
 
-          // ایجاد مارکر جدید (دایره‌ای شبیه فایل اول)
           userMarker = L.circleMarker([lat, lng], {
             radius: 10,
-            fillColor: "#ff5722", // رنگ نارنجی پررنگ (متمایز از سفید)
-            color: "#fff",        // حاشیه سفید برای دیده شدن بهتر
+            fillColor: "#ff5722",
+            color: "#fff",
             weight: 3,
             opacity: 1,
             fillOpacity: 0.8
@@ -273,30 +232,53 @@
 
           userMarker.bindPopup("موقعیت شما").openPopup();
 
-          // بازگشت آیکون دکمه به حالت عادی
+          // بازگشت آیکون
           btnIcon.classList.remove('fa-spinner', 'fa-spin');
           btnIcon.classList.add('fa-crosshairs');
         }
 
-        function error(err) {
-          // بازگشت آیکون دکمه به حالت عادی
-          btnIcon.classList.remove('fa-spinner', 'fa-spin');
-          btnIcon.classList.add('fa-crosshairs');
-
-          // مدیریت دقیق خطاها (طبق فایل اول)
-          if (err.code === 1) {
-            alert("شما اجازه دسترسی به موقعیت مکانی را رد کردید.");
-          } else if (err.code === 2) {
-            alert("موقعیت مکانی شما پیدا نشد (GPS خاموش است؟).");
-          } else if (err.code === 3) {
-            alert("زمان درخواست تمام شد. لطفاً دوباره تلاش کنید.");
-          } else {
-            alert("خطای ناشناخته در دریافت موقعیت.");
+        // تابع مدیریت خطا
+        function handleError(err, isHighAccuracy) {
+          // اگر تلاش اول (دقیق) بود و تایم‌اوت شد، حالا تلاش دوم (تقریبی) را انجام بده
+          if (isHighAccuracy && (err.code === 3 || err.code === 2)) {
+            console.log("GPS failed, trying low accuracy...");
+            navigator.geolocation.getCurrentPosition(
+              success,
+              (finalErr) => handleError(finalErr, false), // اگر باز هم خطا داد
+              {
+                enableHighAccuracy: false, // این بار دقت پایین (سریع‌تر)
+                timeout: 10000,
+                maximumAge: 0
+              }
+            );
+            return;
           }
-          console.warn(`ERROR(${err.code}): ${err.message}`);
+
+          // اگر تلاش دوم هم شکست خورد یا خطا مربوط به مجوز (Permission) بود:
+          btnIcon.classList.remove('fa-spinner', 'fa-spin');
+          btnIcon.classList.add('fa-crosshairs');
+
+          if (err.code === 1) {
+            alert("لطفاً دسترسی موقعیت مکانی (GPS) را در مرورگر فعال کنید.");
+          } else if (err.code === 2) {
+            alert("موقعیت شما پیدا نشد. لطفاً GPS را روشن کنید.");
+          } else if (err.code === 3) {
+            alert("اینترنت یا GPS ضعیف است. لطفاً در فضای باز امتحان کنید.");
+          } else {
+            alert("خطای ناشناخته.");
+          }
         }
 
-        navigator.geolocation.getCurrentPosition(success, error, options);
+        // تلاش اول: با دقت بالا (High Accuracy)
+        navigator.geolocation.getCurrentPosition(
+          success,
+          (err) => handleError(err, true),
+          {
+            enableHighAccuracy: true,
+            timeout: 15000, // 15 ثانیه برای GPS صبر کن
+            maximumAge: 0
+          }
+        );
       };
 
     });
