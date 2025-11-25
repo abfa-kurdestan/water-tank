@@ -48,16 +48,9 @@
 
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
 
   <script>
-    // 1. تعریف سیستم مختصات UTM برای بانه (Zone 38N)
-    const utmProjection = "+proj=utm +zone=38 +datum=WGS84 +units=m +no_defs";
 
-    function convertUtmToLatLng(easting, northing) {
-      const result = proj4(utmProjection, 'EPSG:4326', [easting, northing]);
-      return [result[1], result[0]];
-    }
 
     // === تابع  برای اشتراک‌گذاری موقعیت ===
     function shareLocation(lat, lng, name) {
@@ -93,91 +86,66 @@
 
 
 
-    // --- مارکر تانکر 10 هزار لیتری (فعلی) ---
-    const icon10k = L.divIcon({
-      className: 'icon-10k',
-      html: "<div class='water-icon'><i class='fas fa-glass-water'></i></div>",
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -10]
-    });
+    // 1. تعریف آیکون‌ها (بدون تغییر)
+    const icon10k = L.divIcon({ className: 'icon-10k', html: "<div class='water-icon'><i class='fas fa-glass-water'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
+    const icon5k = L.divIcon({ className: 'icon-5k', html: "<div class='water-icon-5k'><i class='fas fa-glass-water'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
+    const iconSchool = L.divIcon({ className: 'icon-school', html: "<div class='school-icon'><i class='fas fa-school'></i></div>", iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -10] });
 
-    // --- مارکر تانکر 5000 لیتری (نصف سفید) ---
-    const icon5k = L.divIcon({
-      className: 'icon-5k',
-      html: "<div class='water-icon-5k'><i class='fas fa-glass-water'></i></div>",
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -10]
-    });
-
-    // --- مارکر مدارس (آیکون مدرسه آبی) ---
-    const iconSchool = L.divIcon({
-      className: 'icon-school',
-      html: "<div class='school-icon'><i class='fas fa-school'></i></div>",
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -10]
-    });
-
-    // 4. لیست نقاط (مختصات جدید طبق فایل اکسل)
-    const waterPointsUTM = [
-      { id: 1, name: "آتش نشانی آزادگان", x: 579250, y: 3984558, type: "10k" },
-      { id: 2, name: "بنیاد مسکن", x: 577716, y: 3985485, type: "10k" },
-      { id: 3, name: "پمپ بنزین سیار", x: 579528, y: 3984865, type: "10k" },
-      { id: 4, name: "اداره بهزیستی (۱۰۰ متر پایین تر از درب ورودی)", x: 580068, y: 3984407, type: "10k" },
-      { id: 5, name: "آتش نشانی ترخان آباد (جنب درب ورودی)", x: 581340, y: 3983263, type: "10k" },
-      { id: 6, name: "مدرسه شبلی", x: 580693, y: 3982741, type: "10k" },
-      { id: 7, name: "فرمانداری (اول کوچه زندان)", x: 580029, y: 3982725 },
-      { id: 8, name: "اداره کار (۳۰ متر پایین تر از درب ورودی به طرف تالار چوپی)", x: 578859, y: 3983516, type: "10k" },
-      { id: 9, name: "مدرسه بنی رزان", x: 576825, y: 3984376, type: "10k" },
-      { id: 10, name: "فنی حرفه ای (جنب درب ورودی ساختمان)", x: 578322, y: 3983872, type: "10k" },
-      { id: 11, name: "اداره مخابرات (دیوار پشتی اداره)", x: 580023, y: 3983618 },
-      { id: 12, name: "اداره آموزش و پرورش (کوچه جنب آموزش پرورش روبروی اداره برق)", x: 580493, y: 3983191, type: "10k" },
-      { id: 13, name: "مدرسه امام خمینی (جاده سلیمانیه)", x: 578295, y: 3984241, type: "10k" },
-      { id: 14, name: "مدرسه کاوه محمدی (چهار راه ثبت احوال)", x: 579580, y: 3982887, type: "10k" },
-      { id: 15, name: "مدرسه دمامه (ضلع شرقی مدرسه)", x: 582429, y: 3982069, type: "10k" },
-      { id: 16, name: "مدرسه کوی فرهنگیان (ورودی زمین چمن)", x: 580731, y: 3984473, type: "10k" },
-      { id: 17, name: "مدرسه شهرک نور", x: 581515, y: 3982600, type: "10k" },
-      { id: 18, name: "مدرسه احمد آباد جنب مسکن مهرها", x: 581447, y: 3984176, type: "10k" },
-      { id: 19, name: "تیرچه سعیدپور ترخان آباد", x: 581650, y: 3983122, type: "10k" },
-      { id: 20, name: "مدرسه بین ترخان آباد و مولوی", x: 581787, y: 3983164, type: "10k" },
-      { id: 21, name: "باشگاه صفری", x: 581032, y: 3983103, type: "10k" },
-      { id: 22, name: "عثمان آباد", x: 581592, y: 3982084, type: "10k" },
-      { id: 23, name: "اتفاقات اداره آب (۵۰ متر بالاتر از درب ورودی روبروی کمیته امداد)", x: 580710, y: 3982470, type: "10k" },
-      { id: 24, name: "مدرسه دکتر حسابی", x: 580810, y: 3983465, type: "10k" },
-      { id: 25, name: "حیاط شخصی واقع در نبش کمربندی ۲ و خیابان اماکن", x: 579840, y: 3982431, type: "10k" },
-      { id: 26, name: "درمانگاه تخصصی بیمارستان صلاح الدین", x: 579862, y: 3982912, type: "10k" },
-      { id: 27, name: "مخابرات سابق", x: 580176, y: 3983412, type: "10k" },
-      { id: 28, name: "پارک مسکن مهر میدان گاز", x: 580735, y: 3984962, type: "10k" },
-      { id: 29, name: "سپاه صالح آباد", x: 578993, y: 3984812, type: "10k" },
-      { id: 30, name: "خانه سازمانی هنگ مرزی واقع در میدان شورا", x: 578502, y: 3984978, type: "10k" },
-      { id: 31, name: "مدرسه شهرک رفاه بلوار کردستان", x: 577615, y: 3984800, type: "10k" },
-      { id: 33, name: "ارتش", x: 579167, y: 3983139, type: "10k" },
-      { id: 34, name: "مسجد واقع در شهرک لاله", x: 577447, y: 3984117, type: "10k" },
-      { id: 35, name: "باشگاه گلشهر", x: 578619, y: 3984049, type: "10k" },
-      { id: 36, name: "مدرسه فنی حرفه ای سلیمان خاطر", x: 579006, y: 3984048, type: "10k" },
-      { id: 37, name: "مسجد واقع در شهرک دادگستری", x: 578242, y: 3984984, type: "10k" },
-      { id: 38, name: "مدرسه ملاصالح احمدی محله پیرمراد", x: 581170, y: 3982178, type: "10k" },
-      { id: 39, name: "ارشاد اسلامی وروری روبروی فلکه هنر", x: 580200, y: 3983696, type: "10k" },
-      { id: 40, name: "بلوار بلال حبشی", x: 580276, y: 3984894, type: "10k" },
+    const waterPoints = [
+      { id: 1, name: "آتش نشانی آزادگان", lat: 36.002273, lng: 45.879323, type: "10k" },
+      { id: 2, name: "بنیاد مسکن", lat: 36.010753, lng: 45.862395, type: "10k" },
+      { id: 3, name: "پمپ بنزین سیار", lat: 36.005017, lng: 45.882438, type: "10k" },
+      { id: 4, name: "اداره بهزیستی (۱۰۰ متر پایین تر از درب ورودی)", lat: 36.000844, lng: 45.888383, type: "10k" },
+      { id: 5, name: "آتش نشانی ترخان آباد (جنب درب ورودی)", lat: 35.990426, lng: 45.902377, type: "10k" },
+      { id: 6, name: "مدرسه شبلی", lat: 35.985774, lng: 45.895147, type: "10k" },
+      { id: 7, name: "فرمانداری (اول کوچه زندان)", lat: 35.985685, lng: 45.887780, type: "" },
+      { id: 8, name: "اداره کار (۳۰ متر پایین تر از درب ورودی به طرف تالار چوپی)", lat: 35.992911, lng: 45.874881, type: "10k" },
+      { id: 9, name: "مدرسه بنی رزان", lat: 36.000826, lng: 45.852401, type: "10k" },
+      { id: 10, name: "فنی حرفه ای (جنب درب ورودی ساختمان)", lat: 35.996163, lng: 45.868960, type: "10k" },
+      { id: 11, name: "اداره مخابرات (دیوار پشتی اداره)", lat: 35.993735, lng: 45.887804, type: "" },
+      { id: 12, name: "اداره آموزش و پرورش (کوچه جنب آموزش پرورش روبروی اداره برق)", lat: 35.989847, lng: 45.892974, type: "10k" },
+      { id: 13, name: "مدرسه امام خمینی (جاده سلیمانیه)", lat: 35.999492, lng: 45.868697, type: "10k" },
+      { id: 14, name: "مدرسه کاوه محمدی (چهار راه ثبت احوال)", lat: 35.987182, lng: 45.882816, type: "10k" },
+      { id: 15, name: "مدرسه دمامه (ضلع شرقی مدرسه)", lat: 35.979571, lng: 45.914333, type: "10k" },
+      { id: 16, name: "مدرسه کوی فرهنگیان (ورودی زمین چمن)", lat: 36.001385, lng: 45.895745, type: "10k" },
+      { id: 17, name: "مدرسه شهرک نور", lat: 35.984435, lng: 45.904250, type: "10k" },
+      { id: 18, name: "مدرسه احمد آباد جنب مسکن مهرها", lat: 35.998648, lng: 45.903658, type: "10k" },
+      { id: 19, name: "تیرچه سعیدپور ترخان آباد", lat: 35.989129, lng: 45.905801, type: "10k" },
+      { id: 20, name: "مدرسه بین ترخان آباد و مولوی", lat: 35.989496, lng: 45.907326, type: "10k" },
+      { id: 21, name: "باشگاه صفری", lat: 35.989009, lng: 45.898944, type: "10k" },
+      { id: 22, name: "عثمان آباد", lat: 35.979777, lng: 45.905051, type: "10k" },
+      { id: 23, name: "اتفاقات اداره آب (۵۰ متر بالاتر از درب ورودی روبروی کمیته امداد)", lat: 35.983330, lng: 45.895308, type: "10k" },
+      { id: 24, name: "مدرسه دکتر حسابی", lat: 35.992291, lng: 45.896519, type: "10k" },
+      { id: 25, name: "حیاط شخصی واقع در نبش کمربندی ۲ و خیابان اماکن", lat: 35.983050, lng: 45.885654, type: "10k" },
+      { id: 26, name: "درمانگاه تخصصی بیمارستان صلاح الدین", lat: 35.987384, lng: 45.885947, type: "10k" },
+      { id: 27, name: "مخابرات سابق", lat: 35.991866, lng: 45.889481, type: "10k" },
+      { id: 28, name: "پارک مسکن مهر میدان گاز", lat: 36.005793, lng: 45.895839, type: "10k" },
+      { id: 29, name: "سپاه صالح آباد", lat: 36.004583, lng: 45.876497, type: "10k" },
+      { id: 30, name: "خانه سازمانی هنگ مرزی واقع در میدان شورا", lat: 36.006119, lng: 45.871066, type: "10k" },
+      { id: 31, name: "مدرسه شهرک رفاه بلوار کردستان", lat: 36.004586, lng: 45.861207, type: "10k" },
+      { id: 33, name: "ارتش", lat: 35.989487, lng: 45.878260, type: "10k" },
+      { id: 34, name: "مسجد واقع در شهرک لاله", lat: 35.998442, lng: 45.859277, type: "10k" },
+      { id: 35, name: "باشگاه گلشهر", lat: 35.997735, lng: 45.872272, type: "10k" },
+      { id: 36, name: "مدرسه فنی حرفه ای سلیمان خاطر", lat: 35.997695, lng: 45.876565, type: "10k" },
+      { id: 37, name: "مسجد واقع در شهرک دادگستری", lat: 36.006194, lng: 45.868182, type: "10k" },
+      { id: 38, name: "مدرسه ملاصالح احمدی محله پیرمراد", lat: 35.980659, lng: 45.900380, type: "10k" },
+      { id: 39, name: "ارشاد اسلامی وروری روبروی فلکه هنر", lat: 35.994424, lng: 45.889775, type: "5k" },
+      { id: 40, name: "بلوار بلال حبشی", lat: 36.005218, lng: 45.890740, type: "10k" }
     ];
 
-    // 5. حلقه برای ایجاد مارکرها
-    waterPointsUTM.forEach(point => {
-      // بررسی اینکه مختصات وجود داشته باشد
-      if (!point.x || !point.y) return;
+    // 3. ایجاد گروه لایه (مهمترین بخش برای سرعت)
+    const markersGroup = L.layerGroup();
 
-      const latLng = convertUtmToLatLng(point.x, point.y);
-
+    waterPoints.forEach(point => {
       let iconToUse = icon10k;
-
       if (point.type === "5k") iconToUse = icon5k;
       if (point.type === "school") iconToUse = iconSchool;
 
-      const marker = L.marker(latLng, { icon: iconToUse }).addTo(map);
+      // ساخت مارکر با مختصات آماده
+      const marker = L.marker([point.lat, point.lng], { icon: iconToUse });
 
-      const googleMapsUrl = `https://www.google.com/maps?q=${latLng[0]},${latLng[1]}`;
+      // لینک مسیریابی گوگل (اصلاح شده برای سرعت بهتر در موبایل)
+      const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${point.lat},${point.lng}`;
 
       const popupContent = `
         <div class="popup-content">
@@ -188,16 +156,20 @@
             <i class="fas fa-location-arrow"></i> مسیریابی
           </a>
           
-          <button class="share-btn" onclick="shareLocation(${latLng[0]}, ${latLng[1]}, '${point.name}')">
+          <button class="share-btn" onclick="shareLocation(${point.lat}, ${point.lng}, '${point.name}')">
             <i class="fas fa-share-nodes"></i> ارسال موقعیت
           </button>
         </div>
       `;
 
-      marker.bindPopup(popupContent, {
-        className: 'custom-popup'
-      });
+      marker.bindPopup(popupContent, { className: 'custom-popup' });
+
+      // نکته کلیدی: مارکر را به گروه اضافه می‌کنیم، نه مستقیم به نقشه
+      markersGroup.addLayer(marker);
     });
+
+    // 4. در نهایت کل گروه را یک‌جا به نقشه می‌چسبانیم
+    markersGroup.addTo(map);
 
   </script>
 </body>
